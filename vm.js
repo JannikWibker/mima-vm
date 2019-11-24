@@ -77,17 +77,11 @@ const init = ({ instructions, labels, memory, variables }) => {
     return execute(...fetch(++variables.pc))
   }
 
-  console.log('labels:')
-  console.log(labels)
-
-  console.log('instructions:')
-  console.log(instructions.map((item, i) => `${i} ${item[0]} ${item[1]}`).join('\n'))
-
   console.log('\nruntime:')
 
-  execute(...fetch(variables.pc))
-
-  console.log(variables, memory)
+  return {
+    execute: () => execute(...fetch(variables.pc))
+  }
 }
 
 module.exports = {

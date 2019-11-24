@@ -63,4 +63,13 @@ end:  HALT
 `, parse_operants(variables)
 )
 
-init({ instructions, labels, memory, variables })
+console.log('labels:')
+console.log(labels)
+
+console.log('instructions:')
+console.log(instructions.map((item, i) => `${i} ${item[0]} ${item[1]}`).join('\n'))
+
+init({ instructions, labels, memory, variables }).execute()
+
+console.log(variables)
+console.log(memory)
