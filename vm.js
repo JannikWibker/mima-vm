@@ -1,3 +1,5 @@
+const branch_instructions = ['JMP', 'JMN', 'SRC', 'RET']
+
 const parse_operants = variables => operant => operant !== undefined
   ? operant.startsWith('variables.')
     ? variables[operant.substring(10)]
@@ -7,16 +9,17 @@ const parse_operants = variables => operant => operant !== undefined
   : operant
 
 const init = ({ instructions, labels, memory, variables }) => {
+
   const fetch = (pc) => instructions[pc] || []
 
-  const execute = (instruction, operant) => {
+  const execute = (instruction, operant, options) => {
     console.log(variables.pc, instruction, operant)
     switch(instruction) {
       case 'INC':
-        memory[operant]++
+        memory[operant] = (memory[operant] + 1) & variables.minus_one
         break
       case 'DEC':
-        memory[operant]--
+        memory[operant] = (memory[operant] - 1) & variables.minus_one
         break
       case 'LDC': 
         variables.a = operant
@@ -74,13 +77,26 @@ const init = ({ instructions, labels, memory, variables }) => {
       case 'HALT':
       default: return
     }
-    return execute(...fetch(++variables.pc))
+    if(options.step) {
+      return ++variables.pc
+    } else if(options.step_branch) {
+      const [instruction, operant] = fetch(++variables.pc)
+      if(branch_instructions.includes(instruction)) {
+        return variables.pc
+      } else {
+        return execute(instruction, operant, options)
+      }
+    } else {
+      return execute(...fetch(++variables.pc), options) 
+    }
   }
 
   console.log('\nruntime:')
 
   return {
-    execute: () => execute(...fetch(variables.pc))
+    execute: () => execute(...fetch(variables.pc), { step: false }),
+    step: () => execute(...fetch(variables.pc), { step: true }),
+    step_branch: () => execute(...fetch(variables.pc), { step: false, step_branch: true })
   }
 }
 
